@@ -17,13 +17,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl wget unzip gnupg ca-certificates \
     build-essential zlib1g-dev libssl-dev libncurses-dev \
     libffi-dev libsqlite3-dev libreadline-dev libbz2-dev xz-utils \
-    openjdk-8-jdk \
     && \
-    # Symlink JAVA_HOME to installed JDK for consistency
-    mkdir -p /opt/java && ln -s /usr/lib/jvm/java-8-openjdk-amd64 /opt/java/openjdk && \
-    # Provide compatibility symlink for scripts expecting CentOS-style path
-    [ -d /usr/lib/jvm/java-1.8.0-openjdk ] || ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/java-1.8.0-openjdk && \
-    # Ensure $JAVA_HOME/bin/java exists (JDK8 may place java under jre/bin)
+    # Install Temurin JDK 8 (avoid apt repo issues)
+    mkdir -p /opt/java && \
+    curl -fsSL "https://api.adoptium.net/v3/binary/latest/8/ga/linux/x64/jdk/hotspot/normal/eclipse" -o /tmp/jdk8.tar.gz && \
+    mkdir -p /opt/java/temurin8 && \
+    tar -xzf /tmp/jdk8.tar.gz -C /opt/java/temurin8 --strip-components=1 && \
+    ln -s /opt/java/temurin8 /opt/java/openjdk && \
+    # Provide compatibility symlinks for scripts expecting distro paths
+    mkdir -p /usr/lib/jvm && \
+    [ -e /usr/lib/jvm/java-8-openjdk-amd64 ] || ln -s /opt/java/openjdk /usr/lib/jvm/java-8-openjdk-amd64 && \
+    [ -e /usr/lib/jvm/java-1.8.0-openjdk ] || ln -s /opt/java/openjdk /usr/lib/jvm/java-1.8.0-openjdk && \
+    # Ensure $JAVA_HOME/bin/java exists
     [ -x "$JAVA_HOME/bin/java" ] || { mkdir -p "$JAVA_HOME/bin" && ln -s ../jre/bin/java "$JAVA_HOME/bin/java"; } && \
     \
     # Install Python 3.11
