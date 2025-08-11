@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && \
     # Symlink JAVA_HOME to installed JDK for consistency
     mkdir -p /opt/java && ln -s /usr/lib/jvm/java-8-openjdk-amd64 /opt/java/openjdk && \
+    # Provide compatibility symlink for scripts expecting CentOS-style path
+    [ -d /usr/lib/jvm/java-1.8.0-openjdk ] || ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/java-1.8.0-openjdk && \
     \
     # Install Python 3.11
     curl -fsSL https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz && \
