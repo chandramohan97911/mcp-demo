@@ -3,18 +3,18 @@ FROM snyk/snyk:linux
 # Versions
 ARG PYTHON_VERSION=3.11.9
 ARG NODE_MAJOR=18
-ARG GRADLE_VERSION=8.7
+ARG GRADLE_VERSION=7.6.4
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:/opt/gradle/gradle-${GRADLE_VERSION}/bin:$PATH
 
-# Install dependencies: Python 3.11 (from source), Java 17, Node.js 18, Gradle, snyk-to-html
+# Install dependencies: Python 3.11 (from source), Java 8, Node.js 18, Gradle, snyk-to-html
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl wget unzip gnupg ca-certificates \
     build-essential zlib1g-dev libssl-dev libncurses-dev \
     libffi-dev libsqlite3-dev libreadline-dev libbz2-dev xz-utils \
-    openjdk-17-jdk \
+    openjdk-8-jdk \
     && \
     # Install Python 3.11
     curl -fsSL https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz && \
