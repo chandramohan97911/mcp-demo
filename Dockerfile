@@ -9,6 +9,7 @@ ARG GRADLE_VERSION=7.6.4
 ENV DEBIAN_FRONTEND=noninteractive
 ENV JAVA_HOME=/opt/java/openjdk
 ENV MAVEN_DIR=/opt/maven
+ENV MAVEN_SKIP_RC=true
 ENV PATH=$JAVA_HOME/bin:/opt/gradle/gradle-${GRADLE_VERSION}/bin:$MAVEN_DIR/bin:$PATH
 
 # Install dependencies: Python 3.11 (from source), Java 8, Node.js 18, Gradle, Maven, snyk-to-html
@@ -22,6 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mkdir -p /opt/java && ln -s /usr/lib/jvm/java-8-openjdk-amd64 /opt/java/openjdk && \
     # Provide compatibility symlink for scripts expecting CentOS-style path
     [ -d /usr/lib/jvm/java-1.8.0-openjdk ] || ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/java-1.8.0-openjdk && \
+    # Ensure $JAVA_HOME/bin/java exists (JDK8 may place java under jre/bin)
+    [ -x "$JAVA_HOME/bin/java" ] || { mkdir -p "$JAVA_HOME/bin" && ln -s ../jre/bin/java "$JAVA_HOME/bin/java"; } && \
     \
     # Install Python 3.11
     curl -fsSL https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz && \
@@ -55,4 +58,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Confirm versions
-RUN java -version && mvn -version && gradle --version && python --version && pip --version && node --version && snyk-to-html --help
+RUN echo "JAVA_HOME=$JAVA_HOME" && ls -l "$JAVA_HOME" "$JAVA_HOME/bin" || true && java -version && mvn -version && gradle --version && python --version && pip --version && node --version && snyk-to-html --help
